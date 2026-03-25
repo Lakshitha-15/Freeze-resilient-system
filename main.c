@@ -1,30 +1,25 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include "runtime/container.h"
 
-int main(int argc, char *argv[]) {
-    if (argc < 4) {
-        printf("Usage: %s <id> <rootfs> <cmd>\n", argv[0]);
-        printf("Example: %s cont1 test_rootfs \"while true; sleep 1\"\n", argv[0]);
-        return 1;
-    }
-    
-    Container c = {0};
-    strncpy(c.id, argv[1], sizeof(c.id)-1);
-    c.rootfs = argv[2];
-    c.cmd = argv[3];
-    
-    printf("[INFO] Starting container %s\n", c.id);
-    
-    if (container_spawn(&c) != 0) {
-        printf("[ERROR] Failed to spawn container\n");
-        return 1;
-    }
-    
-    printf("[INFO] Container %s running (PID %d) - Waiting...\n", c.id, c.pid);
-    sleep(5);
-    
+// functions
+void supervisor_loop();
+
+int main() {
+    printf("Starting Freeze-Resilient System...\n");
+
+    Container c;
+
+    strcpy(c.id, "container1");
+    c.cmd = "/bin/sh";        // placeholder
+    c.rootfs = "./test_rootfs"; // adjust if needed
+    c.cpu_quota = 20000;
+    c.cpu_period = 100000;
+    c.mem_limit = 50 * 1024 * 1024; // 50MB
+
+    container_spawn(&c);
+
+    supervisor_loop();
+
     return 0;
 }
